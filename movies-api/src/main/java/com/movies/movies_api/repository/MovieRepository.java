@@ -3,6 +3,8 @@ package com.movies.movies_api.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.movies.movies_api.entity.Movie;
 
+import java.util.Set;
+
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    // Movie savedMovie = movieRepository.save(movie);
+    Set<Movie> findByGenres_Id(Long genreId);
 }
