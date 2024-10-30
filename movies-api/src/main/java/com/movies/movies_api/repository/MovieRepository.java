@@ -8,4 +8,5 @@ import java.util.Set;
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Set<Movie> findByGenres_Id(Long genreId);
     Set<Movie> findByReleaseYear(Integer releaseYear);
+    Set<Movie> findByActors_Id(Long actorId);
 }

@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-class MovieService {
+public class MovieService {
     private final MovieRepository movieRepository;
     private final GenreRepository genreRepository;
     private final ActorRepository actorRepository;
@@ -25,59 +25,58 @@ class MovieService {
         this.actorRepository = actorRepository;
     }
 
-    public void addMovie(String title, Integer releaseYear, Integer duration, Long genreId, Set<Long> actorIds) {
-        Genre genre = genreRepository.findById(genreId).orElse(null);
-        Set<Actor> actors = new HashSet<>();
-        for (Long actorId : actorIds) {
-            actorRepository.findById(actorId).ifPresent(actors::add);
-        }
-        if (genre == null) {
-            throw new IllegalArgumentException("Genre with ID " + genreId + " not found");
-        }
-        Movie movie = new Movie();
-        movie.setTitle(title);
-        movie.setReleaseYear(releaseYear);
-        movie.setDuration(duration);
-
-        Set<Genre> genreSet = new HashSet<>();
-        genreSet.add(genre);
-        movie.setGenres(genreSet);
-
-        movie.setActors(actors);
-        movieRepository.save(movie);
-    }
-
-    public void updateMovie(Long movieId, String title, Integer releaseYear, Integer duration, Long genreId, Set<Long> actorIds) {
-        Movie movie = movieRepository.findById(movieId).orElse(null);
-        if (movie == null) {
-            throw new IllegalArgumentException("Movie with ID " + movieId + " not found");
-        }
-        movie.setTitle(title);
-        movie.setReleaseYear(releaseYear);
-        movie.setDuration(duration);
-        Genre genre = genreRepository.findById(genreId).orElse(null);
-        if (genre == null) {
-            throw new IllegalArgumentException("Genre with ID " + genreId + " not found");
-        }
-
-        Set<Genre> genreSet = new HashSet<>();
-        genreSet.add(genre);
-        movie.setGenres(genreSet);
+    public Movie addMovie(Movie movie) {
+        Genre genre = movie.getGenres().stream()
+                .findFirst()
+                .map(g -> genreRepository.findById(g.getId()).orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                .orElseThrow(() -> new IllegalArgumentException("No genre provided"));
 
         Set<Actor> actors = new HashSet<>();
-        for (Long actorId : actorIds) {
-            actorRepository.findById(actorId).ifPresent(actors::add);
+        if (movie.getActors() != null) {
+            for (Actor actor : movie.getActors()) {
+                actors.add(actorRepository.findById(actor.getId()).orElseThrow(() -> new IllegalArgumentException("Actor with ID " + actor.getId() + " not found")));
+            }
         }
+
+        movie.setGenres(Set.of(genre));
         movie.setActors(actors);
-        movieRepository.save(movie);
+        return movieRepository.save(movie);
     }
 
-    public void deleteMovie(Long movieId) {
+    public Movie updateMovie(Long movieId, Movie updatedMovie) {
+        Movie existingMovie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
+
+        existingMovie.setTitle(updatedMovie.getTitle());
+        existingMovie.setReleaseYear(updatedMovie.getReleaseYear());
+        existingMovie.setDuration(updatedMovie.getDuration());
+
+        Genre genre = updatedMovie.getGenres().stream()
+                .findFirst()
+                .map(g -> genreRepository.findById(g.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                .orElseThrow(() -> new IllegalArgumentException("No genre provided"));
+        existingMovie.setGenres(Set.of(genre));
+
+        Set<Actor> actors = new HashSet<>();
+        if (updatedMovie.getActors() != null) {
+            for (Actor actor : updatedMovie.getActors()) {
+                actors.add(actorRepository.findById(actor.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + actor.getId() + " not found")));
+            }
+        }
+        existingMovie.setActors(actors);
+
+        return movieRepository.save(existingMovie);
+    }
+
+    public boolean deleteMovie(Long movieId) {
         Movie movie = movieRepository.findById(movieId).orElse(null);
         if (movie == null) {
-            throw new IllegalArgumentException("Movie with ID " + movieId + " not found");
+            return false;
         }
         movieRepository.delete(movie);
+        return true;
     }
 
     public Set<Movie> getAllMovies() {
@@ -95,6 +94,10 @@ class MovieService {
 
     public Set<Movie> getMoviesByReleaseYear(Integer releaseYear) {
         return movieRepository.findByReleaseYear(releaseYear);
+    }
+
+    public Set<Movie> getMoviesByActorId(Long actorId) {
+        return movieRepository.findByActors_Id(actorId);
     }
 
     public Set<Actor> getActorsByMovieId(Long movieId) {

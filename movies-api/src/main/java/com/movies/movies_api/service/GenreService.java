@@ -24,9 +24,7 @@ public class GenreService {
         this.movieRepository = movieRepository;
     }
 
-    public Genre createGenre(String name) {
-        Genre genre = new Genre();
-        genre.setName(name);
+    public Genre createGenre(Genre genre) {
         return genreRepository.save(genre);
     }
 

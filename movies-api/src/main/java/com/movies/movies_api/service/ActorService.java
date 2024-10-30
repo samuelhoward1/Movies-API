@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-class ActorService {
+public class ActorService {
     private final ActorRepository actorRepository;
     private final MovieRepository movieRepository;
 
