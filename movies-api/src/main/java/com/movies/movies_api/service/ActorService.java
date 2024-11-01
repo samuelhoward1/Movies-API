@@ -4,6 +4,7 @@ import com.movies.movies_api.entity.Actor;
 import com.movies.movies_api.entity.Movie;
 import com.movies.movies_api.repository.ActorRepository;
 import com.movies.movies_api.repository.MovieRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +24,7 @@ public class ActorService {
         this.movieRepository = movieRepository;
     }
 
-    public void addActor(String name, LocalDate birthDate) {
-        Actor actor = new Actor();
-        actor.setName(name);
-        actor.setBirthDate(birthDate);
+    public void addActor(Actor actor) {
         actorRepository.save(actor);
     }
 
@@ -35,8 +33,7 @@ public class ActorService {
     }
 
     public Actor getActorById(Long actorId) {
-        return actorRepository.findById(actorId)
-                .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + actorId + " not found"));
+        return actorRepository.findById(actorId).orElse(null);
     }
 
     public Set<Actor> getActorsByName(String name) {
@@ -48,11 +45,14 @@ public class ActorService {
         return actor.getMovies();
     }
 
-    public void updateActor(Long actorId, Optional<String> name, Optional<LocalDate> birthDate, Set<Long> movieIds) {
+    public Actor updateActor(Long actorId, String name, LocalDate birthDate, Set<Long> movieIds) {
         Actor actor = getActorById(actorId);
-        name.ifPresent(actor::setName);
-        birthDate.ifPresent(actor::setBirthDate);
+        if (actor == null) {
+            return null;
+        }
 
+        if (name != null) actor.setName(name);
+        if (birthDate != null) actor.setBirthDate(birthDate);
         if (movieIds != null && !movieIds.isEmpty()) {
             Set<Movie> movies = new HashSet<>();
             for (Long movieId : movieIds) {
@@ -60,12 +60,19 @@ public class ActorService {
             }
             actor.setMovies(movies);
         }
-
         actorRepository.save(actor);
+        return actor;
     }
 
-    public void deleteActor(Long actorId) {
+
+    public boolean deleteActor(Long actorId) {
         Actor actor = getActorById(actorId);
-        actorRepository.delete(actor);
+        if (actor != null) {
+            actorRepository.delete(actor);
+            return true;
+        } else {
+            return false;
+        }
     }
+
 }
