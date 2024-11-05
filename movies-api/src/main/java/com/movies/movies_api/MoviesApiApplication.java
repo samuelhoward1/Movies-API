@@ -18,6 +18,7 @@ public class MoviesApiApplication implements CommandLineRunner {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Current working directory: " + System.getProperty("user.dir"));
 		SpringApplication.run(MoviesApiApplication.class, args);
 	}
 

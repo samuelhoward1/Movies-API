@@ -45,7 +45,7 @@ public class ActorService {
         return actor.getMovies();
     }
 
-    public Actor updateActor(Long actorId, String name, LocalDate birthDate, Set<Long> movieIds) {
+    public Actor updateActor(Long actorId, String name, String birthDate, Set<Long> movieIds) {
         Actor actor = getActorById(actorId);
         if (actor == null) {
             return null;

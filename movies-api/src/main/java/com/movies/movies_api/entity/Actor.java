@@ -16,8 +16,8 @@ public class Actor {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "birthDate")
+    private String birthDate;
 
     @ManyToMany(mappedBy = "actors")  // Inverse side for Movie relationship
     private Set<Movie> movies = new HashSet<>();
@@ -38,11 +38,11 @@ public class Actor {
         this.name = name;
     }
 
-    public LocalDate getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
