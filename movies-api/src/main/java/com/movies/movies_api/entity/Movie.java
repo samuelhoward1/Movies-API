@@ -1,5 +1,6 @@
 package com.movies.movies_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -23,18 +24,19 @@ public class Movie {
     private Integer duration;
 
     @ManyToMany(mappedBy = "movies")
+//    @JsonManagedReference("movie-genre") // Mark this side of the relationship for serialization
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "movie_actor", // Name of the join table
-            joinColumns = @JoinColumn(name = "movie_id"), // Foreign key in movie_actor referencing Movie
-            inverseJoinColumns = @JoinColumn(name = "actor_id") // Foreign key in movie_actor referencing Actor
+            name = "movie_actor", // Join table for movie-actor relationship
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
+//    @JsonManagedReference("movie-actor") // Mark this side of the relationship for serialization
     private Set<Actor> actors = new HashSet<>();
 
-    public Movie() {
-    }
+    // Getters and Setters
 
     public Long getId() {
         return id;

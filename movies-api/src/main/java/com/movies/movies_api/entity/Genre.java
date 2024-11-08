@@ -1,13 +1,14 @@
 package com.movies.movies_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "genres")
-
 public class Genre {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,14 +19,13 @@ public class Genre {
     @ManyToMany
     @JoinTable(
             name = "movie_genre", // Name of the join table
-            joinColumns = @JoinColumn(name = "genre_id"), // Foreign key in movie_genre referencing Genre
-            inverseJoinColumns = @JoinColumn(name = "movie_id") // Foreign key in movie_genre referencing Movie
+            joinColumns = @JoinColumn(name = "genre_id"), // Foreign key referencing Genre
+            inverseJoinColumns = @JoinColumn(name = "movie_id") // Foreign key referencing Movie
     )
+    @JsonBackReference("movie-genre") // Mark this side as the back-reference (do not serialize)
     private Set<Movie> movies = new HashSet<>();
 
-    public Genre() {
-
-    }
+    // Getters and Setters
 
     public Long getId() {
         return id;

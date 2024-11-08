@@ -1,7 +1,7 @@
 package com.movies.movies_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,13 +19,12 @@ public class Actor {
     @Column(name = "birthDate")
     private String birthDate;
 
-    @ManyToMany(mappedBy = "actors")  // Inverse side for Movie relationship
+    @ManyToMany(mappedBy = "actors")
+    @JsonBackReference("movie-actor") // Mark this side as the back-reference (do not serialize)
     private Set<Movie> movies = new HashSet<>();
 
-    // Default constructor
-    public Actor() {}
-
     // Getters and Setters
+
     public Long getId() {
         return id;
     }

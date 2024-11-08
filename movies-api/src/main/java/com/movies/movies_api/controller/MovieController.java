@@ -23,6 +23,7 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+        System.out.println(movie.toString());
         Movie createdMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
     }

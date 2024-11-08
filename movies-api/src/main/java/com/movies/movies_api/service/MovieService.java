@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
@@ -26,22 +27,25 @@ public class MovieService {
     }
 
     public Movie addMovie(Movie movie) {
-        Genre genre = movie.getGenres().stream()
-                .findFirst()
-                .map(g -> genreRepository.findById(g.getId()).orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
-                .orElseThrow(() -> new IllegalArgumentException("No genre provided"));
+        // Fetch all genres by their IDs
+        Set<Genre> genres = movie.getGenres().stream()
+                .map(g -> genreRepository.findById(g.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                .collect(Collectors.toSet());
 
-        Set<Actor> actors = new HashSet<>();
-        if (movie.getActors() != null) {
-            for (Actor actor : movie.getActors()) {
-                actors.add(actorRepository.findById(actor.getId()).orElseThrow(() -> new IllegalArgumentException("Actor with ID " + actor.getId() + " not found")));
-            }
-        }
+        // Fetch all actors by their IDs
+        Set<Actor> actors = movie.getActors().stream()
+                .map(a -> actorRepository.findById(a.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
+                .collect(Collectors.toSet());
 
-        movie.setGenres(Set.of(genre));
+        // Set the genres and actors to the movie
+        movie.setGenres(genres);
         movie.setActors(actors);
+
         return movieRepository.save(movie);
     }
+
 
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
         Movie existingMovie = movieRepository.findById(movieId)
