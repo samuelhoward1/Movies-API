@@ -1,7 +1,9 @@
 package com.movies.movies_api.controller;
 
+import com.movies.movies_api.dto.GenreMoviesDTO;
 import com.movies.movies_api.entity.Genre;
 import com.movies.movies_api.service.GenreService;
+import com.movies.movies_api.service.MapperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +16,12 @@ import java.util.Set;
 public class GenreController {
 
     private final GenreService genreService;
+    private final MapperService mapperService;
 
     @Autowired
-    public GenreController(GenreService genreService) {
+    public GenreController(GenreService genreService, MapperService mapperService) {
         this.genreService = genreService;
+        this.mapperService = mapperService;
     }
 
     @PostMapping
@@ -44,6 +48,18 @@ public class GenreController {
 
         if (updatedGenre != null) {
             return new ResponseEntity<>(updatedGenre, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{id}/movies")
+    public ResponseEntity<GenreMoviesDTO> getMoviesByGenre(@PathVariable Long id) {
+        Genre genre = genreService.getGenre(id);
+
+        if (genre != null) {
+            GenreMoviesDTO dto = mapperService.toGenreMoviesDTO(genre);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
