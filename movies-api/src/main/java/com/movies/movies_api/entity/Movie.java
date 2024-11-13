@@ -27,7 +27,7 @@ public class Movie {
 //    @JsonManagedReference("movie-genre") // Mark this side of the relationship for serialization
     private Set<Genre> genres = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "movie_actor", // Join table for movie-actor relationship
             joinColumns = @JoinColumn(name = "movie_id"),

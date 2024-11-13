@@ -55,12 +55,6 @@ public class MovieController {
         }
     }
 
-    @GetMapping(params = "genre")
-    public ResponseEntity<Set<Movie>> getMoviesByGenre(@RequestParam Long genreId) {
-        Set<Movie> movies = movieService.getMoviesByGenre(genreId);
-        return new ResponseEntity<>(movies, HttpStatus.OK);
-    }
-
     @GetMapping(params = "year")
     public ResponseEntity<Set<Movie>> getMoviesByYear(@RequestParam Integer year) {
         Set<Movie> movies = movieService.getMoviesByReleaseYear(year);

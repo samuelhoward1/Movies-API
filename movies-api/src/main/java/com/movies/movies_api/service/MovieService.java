@@ -8,6 +8,7 @@ import com.movies.movies_api.repository.GenreRepository;
 import com.movies.movies_api.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,7 @@ public class MovieService {
         this.actorRepository = actorRepository;
     }
 
+    @Transactional
     public Movie addMovie(Movie movie) {
         // Fetch all genres by their IDs
         Set<Genre> genres = movie.getGenres().stream()
@@ -43,9 +45,14 @@ public class MovieService {
         movie.setGenres(genres);
         movie.setActors(actors);
 
+        // Update each genre's movie set to include this movie
+        for (Genre genre : genres) {
+            genre.getMovies().add(movie); // Add the movie to the genre's movies set
+        }
+
+        // Save the movie (this should also update the join table due to cascading)
         return movieRepository.save(movie);
     }
-
 
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
         Movie existingMovie = movieRepository.findById(movieId)
