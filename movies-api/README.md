@@ -11,3 +11,8 @@ Postman reqbody to post movie
 { "id": 1 }
 ]
 }
+
+Postman URL to patch genre name
+
+http://localhost:8080/api/genres/4?newName=Documentaryy
+
