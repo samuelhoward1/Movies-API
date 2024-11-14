@@ -29,28 +29,23 @@ public class MovieService {
 
     @Transactional
     public Movie addMovie(Movie movie) {
-        // Fetch all genres by their IDs
         Set<Genre> genres = movie.getGenres().stream()
                 .map(g -> genreRepository.findById(g.getId())
                         .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
                 .collect(Collectors.toSet());
 
-        // Fetch all actors by their IDs
         Set<Actor> actors = movie.getActors().stream()
                 .map(a -> actorRepository.findById(a.getId())
                         .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
                 .collect(Collectors.toSet());
 
-        // Set the genres and actors to the movie
         movie.setGenres(genres);
         movie.setActors(actors);
 
-        // Update each genre's movie set to include this movie
         for (Genre genre : genres) {
-            genre.getMovies().add(movie); // Add the movie to the genre's movies set
+            genre.getMovies().add(movie);
         }
 
-        // Save the movie (this should also update the join table due to cascading)
         return movieRepository.save(movie);
     }
 
@@ -67,7 +62,10 @@ public class MovieService {
                 .map(g -> genreRepository.findById(g.getId())
                         .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
                 .orElseThrow(() -> new IllegalArgumentException("No genre provided"));
-        existingMovie.setGenres(Set.of(genre));
+
+        Set<Genre> genres = new HashSet<>();
+        genres.add(genre);
+        existingMovie.setGenres(genres);
 
         Set<Actor> actors = new HashSet<>();
         if (updatedMovie.getActors() != null) {

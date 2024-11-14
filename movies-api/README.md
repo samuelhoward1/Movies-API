@@ -16,3 +16,24 @@ Postman URL to patch genre name
 
 http://localhost:8080/api/genres/4?newName=Documentaryy
 
+To get all movies
+
+http://localhost:8080/api/movies
+
+To get movies by genre
+
+http://localhost:8080/api/genres/2/movies
+
+To get movies by release year
+
+http://localhost:8080/api/movies?year=1999
+
+To get actors by movie
+
+http://localhost:8080/api/movies/36/actors
+
+
+
+
+
+
