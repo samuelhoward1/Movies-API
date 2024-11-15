@@ -32,6 +32,21 @@ To get actors by movie
 
 http://localhost:8080/api/movies/36/actors
 
+To create actor 
+
+{
+"name": "Leonardo DiCaprio",
+"birthDate": "1964-09-02",
+"movies": [
+{
+"id": 23
+},
+{
+"id": 25
+}
+]
+}
+
 
 
 
