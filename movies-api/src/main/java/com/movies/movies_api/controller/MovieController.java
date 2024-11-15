@@ -61,8 +61,8 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    @GetMapping(params = "actor")
-    public ResponseEntity<Set<Movie>> getMoviesByActor(@RequestParam Long actorId) {
+    @GetMapping(params = "actorId")
+    public ResponseEntity<Set<Movie>> getMoviesByActor(@RequestParam("actorId") Long actorId) {
         Set<Movie> movies = movieService.getMoviesByActorId(actorId);
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }

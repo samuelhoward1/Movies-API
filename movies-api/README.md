@@ -12,6 +12,16 @@ Postman reqbody to post movie
 ]
 }
 
+To create genre
+
+{
+"name": "Thriller"
+}
+
+Postman url to patch movie
+
+http://localhost:8080/api/movies/48
+
 Postman URL to patch genre name
 
 http://localhost:8080/api/genres/4?newName=Documentaryy
@@ -23,6 +33,10 @@ http://localhost:8080/api/movies
 To get movies by genre
 
 http://localhost:8080/api/genres/2/movies
+
+To get movies by actor
+
+http://localhost:8080/api/movies?actor=1
 
 To get movies by release year
 
