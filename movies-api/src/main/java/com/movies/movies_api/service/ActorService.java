@@ -72,6 +72,9 @@ public class ActorService {
         if (name != null) actor.setName(name);
         if (birthDate != null) actor.setBirthDate(birthDate);
 
+        // Get the current list of movies the actor is associated with
+        Set<Movie> currentMovies = new HashSet<>(actor.getMovies());
+
         // Update actor's movies
         if (movieIds != null && !movieIds.isEmpty()) {
             Set<Movie> movies = new HashSet<>();
@@ -85,6 +88,14 @@ public class ActorService {
                 movie.getActors().add(actor); // Add the actor to the movie's actors set
                 movieRepository.save(movie); // Save the movie to persist the updated actors set
             }
+
+            // Remove actor from old movies if they are no longer in the updated list
+            for (Movie movie : currentMovies) {
+                if (!movies.contains(movie)) {
+                    movie.getActors().remove(actor); // Remove the actor from the movie's actors set
+                    movieRepository.save(movie); // Save the movie to persist the updated actors set
+                }
+            }
         }
 
         // Save the updated actor
@@ -96,6 +107,11 @@ public class ActorService {
     public boolean deleteActor(Long actorId) {
         Actor actor = getActorById(actorId);
         if (actor != null) {
+            // Remove actor from all movies before deleting
+            for (Movie movie : actor.getMovies()) {
+                movie.getActors().remove(actor); // Remove the actor from the movie's actors set
+                movieRepository.save(movie); // Save the movie to persist the updated actors set
+            }
             actorRepository.delete(actor);
             return true;
         } else {

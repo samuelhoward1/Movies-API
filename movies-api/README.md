@@ -61,6 +61,17 @@ To create actor
 ]
 }
 
+To get actor by name
+http://localhost:8080/api/actors?name=Keanu+Reeves
+
+To patch actor
+
+{
+"name": "Ho Ho",
+"birthDate": "1999-09-19",
+"movieIds": [45, 55]
+}
+
 
 
 
