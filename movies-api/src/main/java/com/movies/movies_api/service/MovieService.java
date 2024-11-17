@@ -49,6 +49,7 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
+    @Transactional
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
@@ -57,24 +58,31 @@ public class MovieService {
         existingMovie.setReleaseYear(updatedMovie.getReleaseYear());
         existingMovie.setDuration(updatedMovie.getDuration());
 
-        Genre genre = updatedMovie.getGenres().stream()
-                .findFirst()
+        // Update genres
+        Set<Genre> newGenres = updatedMovie.getGenres().stream()
                 .map(g -> genreRepository.findById(g.getId())
                         .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
-                .orElseThrow(() -> new IllegalArgumentException("No genre provided"));
+                .collect(Collectors.toSet());
 
-        Set<Genre> genres = new HashSet<>();
-        genres.add(genre);
-        existingMovie.setGenres(genres);
-
-        Set<Actor> actors = new HashSet<>();
-        if (updatedMovie.getActors() != null) {
-            for (Actor actor : updatedMovie.getActors()) {
-                actors.add(actorRepository.findById(actor.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + actor.getId() + " not found")));
-            }
+        // Remove movie from old genres
+        Set<Genre> oldGenres = existingMovie.getGenres();
+        for (Genre oldGenre : oldGenres) {
+            oldGenre.getMovies().remove(existingMovie);
         }
-        existingMovie.setActors(actors);
+
+        // Add movie to new genres
+        for (Genre newGenre : newGenres) {
+            newGenre.getMovies().add(existingMovie);
+        }
+
+        existingMovie.setGenres(newGenres);
+
+        // Update actors
+        Set<Actor> newActors = updatedMovie.getActors().stream()
+                .map(a -> actorRepository.findById(a.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
+                .collect(Collectors.toSet());
+        existingMovie.setActors(newActors);
 
         return movieRepository.save(existingMovie);
     }

@@ -36,7 +36,7 @@ http://localhost:8080/api/genres/2/movies
 
 To get movies by actor
 
-http://localhost:8080/api/movies?actor=1
+http://localhost:8080/api/movies?actorId=1
 
 To get movies by release year
 
