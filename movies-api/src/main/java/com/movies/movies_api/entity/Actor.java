@@ -16,7 +16,7 @@ public class Actor {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "birthDate")
+    @Column(name = "birthDate") // make sure to accept in only iso86
     private String birthDate;
 
     @ManyToMany(mappedBy = "actors")
