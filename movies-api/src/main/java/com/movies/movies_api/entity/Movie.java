@@ -24,7 +24,7 @@ public class Movie {
     private Integer duration;
 
     @ManyToMany(mappedBy = "movies")
-    @JsonManagedReference("movie-genre") // Mark this side of the relationship for serialization
+//    @JsonManagedReference("movie-genre") // Mark this side of the relationship for serialization
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
@@ -33,7 +33,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    @JsonManagedReference("movie-actor") // Mark this side of the relationship for serialization
+//    @JsonManagedReference("movie-actor") // Mark this side of the relationship for serialization
     private Set<Actor> actors = new HashSet<>();
 
     // Getters and Setters

@@ -65,6 +65,7 @@ To get actor by name
 http://localhost:8080/api/actors?name=Keanu+Reeves
 
 To patch actor
+NB! patch works for giving individual fields as well
 
 {
 "name": "Ho Ho",

@@ -18,12 +18,12 @@ public class GenreService {
 
     // Repositories will be injected here
     private final GenreRepository genreRepository;
-    private final MovieRepository movieRepository;
+//    private final MovieRepository movieRepository;
 
     @Autowired
     public GenreService(GenreRepository genreRepository, MovieRepository movieRepository) {
         this.genreRepository = genreRepository;
-        this.movieRepository = movieRepository;
+//        this.movieRepository = movieRepository;
     }
 
     public Genre createGenre(Genre genre) {
@@ -39,21 +39,21 @@ public class GenreService {
         return genreRepository.findById(id).orElse(null);
     }
 
-    public GenreMoviesDTO getMoviesByGenreId(Long genreId) {
-        Optional<Genre> genre = genreRepository.findById(genreId);
-
-        // If genre is found, extract movie titles and return GenreMoviesDTO
-        if (genre.isPresent()) {
-            Set<String> movieTitles = genre.get().getMovies().stream()
-                    .map(movie -> movie.getTitle()) // Get movie title
-                    .collect(Collectors.toSet());  // Collect as Set<String>
-
-            return new GenreMoviesDTO(genre.get().getId(), genre.get().getName(), movieTitles);
-        } else {
-            // Return a default GenreMoviesDTO with empty data or a placeholder
-            return new GenreMoviesDTO(genreId, "Not Found", new HashSet<>());
-        }
-    }
+//    public GenreMoviesDTO getMoviesByGenreId(Long genreId) {
+//        Optional<Genre> genre = genreRepository.findById(genreId);
+//
+//        // If genre is found, extract movie titles and return GenreMoviesDTO
+//        if (genre.isPresent()) {
+//            Set<String> movieTitles = genre.get().getMovies().stream()
+//                    .map(movie -> movie.getTitle()) // Get movie title
+//                    .collect(Collectors.toSet());  // Collect as Set<String>
+//
+//            return new GenreMoviesDTO(genre.get().getId(), genre.get().getName(), movieTitles);
+//        } else {
+//            // Return a default GenreMoviesDTO with empty data or a placeholder
+//            return new GenreMoviesDTO(genreId, "Not Found", new HashSet<>());
+//        }
+//    }
 
     public Genre updateGenreName(Long id, String newName) {
         Genre genre = genreRepository.findById(id).orElse(null);
