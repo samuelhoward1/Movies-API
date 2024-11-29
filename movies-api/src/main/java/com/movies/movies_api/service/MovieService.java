@@ -51,41 +51,70 @@ public class MovieService {
 
     @Transactional
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
+        // Find the existing movie by its ID, or throw an exception if not found
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
 
-        existingMovie.setTitle(updatedMovie.getTitle());
-        existingMovie.setReleaseYear(updatedMovie.getReleaseYear());
-        existingMovie.setDuration(updatedMovie.getDuration());
-
-        // Update genres
-        Set<Genre> newGenres = updatedMovie.getGenres().stream()
-                .map(g -> genreRepository.findById(g.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
-                .collect(Collectors.toSet());
-
-        // Remove movie from old genres
-        Set<Genre> oldGenres = existingMovie.getGenres();
-        for (Genre oldGenre : oldGenres) {
-            oldGenre.getMovies().remove(existingMovie);
+        // Only update fields that are not null
+        if (updatedMovie.getTitle() != null) {
+            existingMovie.setTitle(updatedMovie.getTitle());
+        }
+        if (updatedMovie.getReleaseYear() != null) {
+            existingMovie.setReleaseYear(updatedMovie.getReleaseYear());
+        }
+        if (updatedMovie.getDuration() != null) {
+            existingMovie.setDuration(updatedMovie.getDuration());
         }
 
-        // Add movie to new genres
-        for (Genre newGenre : newGenres) {
-            newGenre.getMovies().add(existingMovie);
+        // Update genres if provided
+        if (updatedMovie.getGenres() != null && !updatedMovie.getGenres().isEmpty()) {
+            // Map the provided genres by their IDs
+            Set<Genre> newGenres = updatedMovie.getGenres().stream()
+                    .map(g -> genreRepository.findById(g.getId())
+                            .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                    .collect(Collectors.toSet());
+
+            // Clear existing genres and add the new ones
+            Set<Genre> oldGenres = new HashSet<>(existingMovie.getGenres());
+            existingMovie.getGenres().clear();
+            existingMovie.getGenres().addAll(newGenres);
+
+            // Synchronize the inverse side of the relationship (Genre -> Movie)
+            for (Genre genre : newGenres) {
+                genre.getMovies().add(existingMovie);  // Add movie to genre's movie set
+            }
+
+            // Remove the movie from the old genres that are no longer associated
+            for (Genre genre : oldGenres) {
+                if (!newGenres.contains(genre)) {
+                    genre.getMovies().remove(existingMovie);  // Remove movie from genre's movie set
+                }
+            }
         }
 
-        existingMovie.setGenres(newGenres);
+        // Update actors if provided
+        if (updatedMovie.getActors() != null && !updatedMovie.getActors().isEmpty()) {
+            // Map the provided actors by their IDs
+            Set<Actor> newActors = updatedMovie.getActors().stream()
+                    .map(a -> actorRepository.findById(a.getId())
+                            .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
+                    .collect(Collectors.toSet());
 
-        // Update actors
-        Set<Actor> newActors = updatedMovie.getActors().stream()
-                .map(a -> actorRepository.findById(a.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
-                .collect(Collectors.toSet());
-        existingMovie.setActors(newActors);
+            // Clear existing actors and add the new ones
+            existingMovie.getActors().clear();
+            existingMovie.getActors().addAll(newActors);
 
+            // Synchronize the inverse side of the relationship (Actor -> Movie)
+            for (Actor actor : newActors) {
+                actor.getMovies().add(existingMovie);  // Add movie to actor's movie set
+            }
+        }
+
+        // Save and return the updated movie
         return movieRepository.save(existingMovie);
     }
+
+
 
     public boolean deleteMovie(Long movieId) {
         Movie movie = movieRepository.findById(movieId).orElse(null);
