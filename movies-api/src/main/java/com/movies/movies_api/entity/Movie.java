@@ -2,7 +2,11 @@ package com.movies.movies_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,17 +18,24 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Movie title cannot be blank")
+    @Size(max = 255, message = "Movie title cannot exceed 255 characters")
     @Column(name = "title", nullable = false)
     private String title;
 
+    @NotNull(message = "Release year cannot be null")
+    @Min(value = 1900, message = "Release year must be after 1900")
+    @Max(value = 2100, message = "Release year cannot be after 2100")
     @Column(name = "release_year")
     private Integer releaseYear;
 
+    @NotNull(message = "Duration cannot be null")
+    @Min(value = 1, message = "Duration must be at least 1 minute")
     @Column(name = "duration")
     private Integer duration;
 
     @ManyToMany(mappedBy = "movies")
-//    @JsonManagedReference("movie-genre") // Mark this side of the relationship for serialization
+    // @JsonManagedReference("movie-genre") // Uncomment for serialization
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
@@ -33,7 +44,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-//    @JsonManagedReference("movie-actor") // Mark this side of the relationship for serialization
+    // @JsonManagedReference("movie-actor") // Uncomment for serialization
     private Set<Actor> actors = new HashSet<>();
 
     // Getters and Setters

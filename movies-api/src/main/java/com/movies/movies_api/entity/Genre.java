@@ -2,6 +2,8 @@ package com.movies.movies_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,7 +15,9 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false) // check notBlank alternative
+    @NotBlank(message = "Genre name cannot be blank")
+    @Size(max = 100, message = "Genre name must not exceed 100 characters")
+    @Column(name = "name", nullable = false, unique = true) // Enforce unique constraint in DB
     private String name;
 
     @ManyToMany

@@ -2,6 +2,9 @@ package com.movies.movies_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,10 +16,13 @@ public class Actor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Actor name cannot be blank")
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "birthDate") // make sure to accept in only iso86
+    @NotNull(message = "Birthdate cannot be null")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Birthdate must be in ISO 8601 format (YYYY-MM-DD)")
+    @Column(name = "birthDate") // Enforce ISO8601 format
     private String birthDate;
 
     @ManyToMany(mappedBy = "actors")

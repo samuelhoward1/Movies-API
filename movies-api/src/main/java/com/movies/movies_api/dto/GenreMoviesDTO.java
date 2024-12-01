@@ -1,10 +1,13 @@
 package com.movies.movies_api.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 
 public class GenreMoviesDTO {
 
     private Long id;
+
+    @NotBlank(message = "Genre name cannot be blank") // Add @NotBlank for validation
     private String name;
     private Set<String> movies; // Only movie titles
 
