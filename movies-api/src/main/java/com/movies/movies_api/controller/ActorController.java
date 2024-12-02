@@ -3,6 +3,7 @@ package com.movies.movies_api.controller;
 import com.movies.movies_api.entity.Actor;
 import com.movies.movies_api.service.ActorService;
 import com.movies.movies_api.dto.ActorUpdateDTO;
+import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +38,10 @@ public class ActorController {
     @GetMapping("{id}")
     public ResponseEntity<Actor> getActorById(@PathVariable Long id) {
         Actor actor = actorService.getActorById(id);
-        if (actor != null) {
-            return ResponseEntity.ok(actor);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        if (actor == null) {
+            throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        return ResponseEntity.ok(actor);
     }
 
     @PatchMapping("/{id}")
@@ -53,21 +53,19 @@ public class ActorController {
                 actorUpdateDTO.getBirthDate(),
                 actorUpdateDTO.getMovieIds());
 
-        if (updatedActor != null) {
-            return ResponseEntity.ok(updatedActor);
-        } else {
-            return ResponseEntity.notFound().build();
+        if (updatedActor == null) {
+            throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        return ResponseEntity.ok(updatedActor);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteActor(@PathVariable Long id) {
         boolean deleted = actorService.deleteActor(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build(); // 204 No Content
-        } else {
-            return ResponseEntity.notFound().build(); // 404 Not Found
+        if (!deleted) {
+            throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
 
     @GetMapping(params = "name")

@@ -6,6 +6,7 @@ import com.movies.movies_api.entity.Genre;
 import com.movies.movies_api.repository.ActorRepository;
 import com.movies.movies_api.repository.GenreRepository;
 import com.movies.movies_api.repository.MovieRepository;
+import com.movies.movies_api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +32,12 @@ public class MovieService {
     public Movie addMovie(Movie movie) {
         Set<Genre> genres = movie.getGenres().stream()
                 .map(g -> genreRepository.findById(g.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                        .orElseThrow(() -> new ResourceNotFoundException("Genre with ID " + g.getId() + " not found", String.valueOf(g.getId()))))
                 .collect(Collectors.toSet());
 
         Set<Actor> actors = movie.getActors().stream()
                 .map(a -> actorRepository.findById(a.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
+                        .orElseThrow(() -> new ResourceNotFoundException("Actor with ID " + a.getId() + " not found", String.valueOf(a.getId()))))
                 .collect(Collectors.toSet());
 
         movie.setGenres(genres);
@@ -53,7 +54,7 @@ public class MovieService {
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
         // Find the existing movie by its ID, or throw an exception if not found
         Movie existingMovie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
 
         // Only update fields that are not null
         if (updatedMovie.getTitle() != null) {
@@ -71,7 +72,7 @@ public class MovieService {
             // Map the provided genres by their IDs
             Set<Genre> newGenres = updatedMovie.getGenres().stream()
                     .map(g -> genreRepository.findById(g.getId())
-                            .orElseThrow(() -> new IllegalArgumentException("Genre with ID " + g.getId() + " not found")))
+                            .orElseThrow(() -> new ResourceNotFoundException("Genre with ID " + g.getId() + " not found", String.valueOf(g.getId()))))
                     .collect(Collectors.toSet());
 
             // Clear existing genres and add the new ones
@@ -97,7 +98,7 @@ public class MovieService {
             // Map the provided actors by their IDs
             Set<Actor> newActors = updatedMovie.getActors().stream()
                     .map(a -> actorRepository.findById(a.getId())
-                            .orElseThrow(() -> new IllegalArgumentException("Actor with ID " + a.getId() + " not found")))
+                            .orElseThrow(() -> new ResourceNotFoundException("Actor with ID " + a.getId() + " not found", String.valueOf(a.getId()))))
                     .collect(Collectors.toSet());
 
             // Clear existing actors and add the new ones
@@ -114,13 +115,10 @@ public class MovieService {
         return movieRepository.save(existingMovie);
     }
 
-
-
     public boolean deleteMovie(Long movieId) {
-        Movie movie = movieRepository.findById(movieId).orElse(null);
-        if (movie == null) {
-            return false;
-        }
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
+
         movieRepository.delete(movie);
         return true;
     }
@@ -131,7 +129,7 @@ public class MovieService {
 
     public Movie getMovieById(Long movieId) {
         return movieRepository.findById(movieId)
-                .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
     }
 
     public Set<Movie> getMoviesByGenre(Long genreId) {
@@ -148,7 +146,7 @@ public class MovieService {
 
     public Set<Actor> getActorsByMovieId(Long movieId) {
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new IllegalArgumentException("Movie with ID " + movieId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
         return movie.getActors();
     }
 }

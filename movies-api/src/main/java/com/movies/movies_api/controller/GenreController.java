@@ -4,6 +4,7 @@ import com.movies.movies_api.dto.GenreMoviesDTO;
 import com.movies.movies_api.entity.Genre;
 import com.movies.movies_api.service.GenreService;
 import com.movies.movies_api.service.MapperService;
+import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,41 +41,38 @@ public class GenreController {
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getGenreById(@PathVariable Long id) {
         Genre genre = genreService.getGenre(id);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
+        }
         return new ResponseEntity<>(genre, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestParam String newName) {
         Genre updatedGenre = genreService.updateGenreName(id, newName);
-
-        if (updatedGenre != null) {
-            return new ResponseEntity<>(updatedGenre, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (updatedGenre == null) {
+            throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        return new ResponseEntity<>(updatedGenre, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/movies")
     public ResponseEntity<GenreMoviesDTO> getMoviesByGenre(@PathVariable Long id) {
         Genre genre = genreService.getGenre(id);
-
-        if (genre != null) {
-            GenreMoviesDTO dto = mapperService.toGenreMoviesDTO(genre);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        GenreMoviesDTO dto = mapperService.toGenreMoviesDTO(genre);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         Genre genre = genreService.getGenre(id);
-
-        if (genre != null) {
-            genreService.deleteGenre(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        genreService.deleteGenre(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

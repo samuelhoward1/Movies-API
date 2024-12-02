@@ -3,6 +3,7 @@ package com.movies.movies_api.controller;
 import com.movies.movies_api.entity.Movie;
 import com.movies.movies_api.entity.Actor;
 import com.movies.movies_api.service.MovieService;
+import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,6 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<Movie> addMovie(@Valid @RequestBody Movie movie) {
-        System.out.println(movie.toString());
         Movie createdMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
     }
@@ -38,22 +38,28 @@ public class MovieController {
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
         Movie movie = movieService.getMovieById(id);
-        return movie != null ? new ResponseEntity<>(movie, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (movie == null) {
+            throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
+        }
+        return new ResponseEntity<>(movie, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @Valid @RequestBody Movie movie) {
         Movie updatedMovie = movieService.updateMovie(id, movie);
+        if (updatedMovie == null) {
+            throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
+        }
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        if (movieService.deleteMovie(id)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        boolean deleted = movieService.deleteMovie(id);
+        if (!deleted) {
+            throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
         }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(params = "year")
@@ -71,6 +77,9 @@ public class MovieController {
     @GetMapping("/{movieId}/actors")
     public ResponseEntity<Set<Actor>> getActorsByMovieId(@PathVariable Long movieId) {
         Set<Actor> actors = movieService.getActorsByMovieId(movieId);
-        return actors != null ? new ResponseEntity<>(actors, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (actors == null || actors.isEmpty()) {
+            throw new ResourceNotFoundException("No actors found for movie with id " + movieId, HttpStatus.NOT_FOUND.toString());
+        }
+        return new ResponseEntity<>(actors, HttpStatus.OK);
     }
 }
