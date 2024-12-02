@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.Set;
 
 @RestController
@@ -22,7 +23,7 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+    public ResponseEntity<Movie> addMovie(@Valid @RequestBody Movie movie) {
         System.out.println(movie.toString());
         Movie createdMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
@@ -41,7 +42,7 @@ public class MovieController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
+    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @Valid @RequestBody Movie movie) {
         Movie updatedMovie = movieService.updateMovie(id, movie);
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.Set;
 
 @RestController
@@ -22,7 +23,7 @@ public class ActorController {
     }
 
     @PostMapping
-    public ResponseEntity<Actor> createActor(@RequestBody Actor actor) {
+    public ResponseEntity<Actor> createActor(@Valid @RequestBody Actor actor) {
         actorService.addActor(actor);
         return new ResponseEntity<>(actor, HttpStatus.CREATED);
     }
@@ -44,7 +45,9 @@ public class ActorController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Actor> updateActor(@PathVariable Long id, @RequestBody ActorUpdateDTO actorUpdateDTO) {
+    public ResponseEntity<Actor> updateActor(
+            @PathVariable Long id,
+            @Valid @RequestBody ActorUpdateDTO actorUpdateDTO) {
         Actor updatedActor = actorService.updateActor(id,
                 actorUpdateDTO.getName(),
                 actorUpdateDTO.getBirthDate(),

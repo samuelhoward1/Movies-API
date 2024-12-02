@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.Set;
 
 @RestController
@@ -25,7 +26,7 @@ public class GenreController {
     }
 
     @PostMapping
-    public ResponseEntity<Genre> addGenre(@RequestBody Genre genre) {
+    public ResponseEntity<Genre> addGenre(@Valid @RequestBody Genre genre) {
         Genre createdGenre = genreService.createGenre(genre);
         return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
     }
