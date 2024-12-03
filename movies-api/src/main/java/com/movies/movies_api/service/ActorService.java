@@ -104,18 +104,28 @@ public class ActorService {
     }
 
     // Delete Actor
-    public boolean deleteActor(Long actorId) {
+    public boolean deleteActor(Long actorId, boolean force) {
         Actor actor = getActorById(actorId);
         if (actor != null) {
-            // Remove actor from all movies before deleting
-            for (Movie movie : actor.getMovies()) {
-                movie.getActors().remove(actor); // Remove the actor from the movie's actors set
-                movieRepository.save(movie); // Save the movie to persist the updated actors set
+            // If not forced and actor is associated with movies, throw an error with actor name and movie count
+            if (!force && !actor.getMovies().isEmpty()) {
+                throw new IllegalStateException("Unable to delete actor '" + actor.getName() +
+                        "' as they are associated with " + actor.getMovies().size() + " movie(s).");
             }
+
+            // Force deletion: remove actor from all movies
+            for (Movie movie : actor.getMovies()) {
+                movie.getActors().remove(actor);
+                movieRepository.save(movie);
+            }
+
+            // Delete the actor
             actorRepository.delete(actor);
             return true;
-        } else {
-            return false;
         }
+        return false; // Actor not found
     }
+
+
+
 }

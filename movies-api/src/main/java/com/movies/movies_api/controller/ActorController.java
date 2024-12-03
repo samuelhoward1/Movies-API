@@ -60,13 +60,21 @@ public class ActorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteActor(@PathVariable Long id) {
-        boolean deleted = actorService.deleteActor(id);
-        if (!deleted) {
-            throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
+    public ResponseEntity<String> deleteActor(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean force) {
+        try {
+            boolean deleted = actorService.deleteActor(id, force);
+            if (!deleted) {
+                throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
+            }
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (IllegalStateException e) {
+            // Handle the case where actor can't be deleted due to associated movies
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return ResponseEntity.noContent().build(); // 204 No Content
     }
+
+
+
 
     @GetMapping(params = "name")
     public ResponseEntity<Set<Actor>> getActorsByName(@RequestParam String name) {
