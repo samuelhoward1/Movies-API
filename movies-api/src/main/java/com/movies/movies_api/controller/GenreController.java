@@ -67,12 +67,28 @@ public class GenreController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
-        Genre genre = genreService.getGenre(id);
-        if (genre == null) {
-            throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
+    public ResponseEntity<String> deleteGenre(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean force) {
+        try {
+            // Attempt to delete the genre
+            boolean deleted = genreService.deleteGenre(id, force);
+
+            // If the genre is not found, throw an exception
+            if (!deleted) {
+                throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
+            }
+
+            // Return 204 No Content if deletion is successful
+            return ResponseEntity.noContent().build();
+
+        } catch (IllegalStateException e) {
+            // Handle the case where the genre cannot be deleted due to associated movies
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        genreService.deleteGenre(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
+
+
 }

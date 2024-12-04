@@ -1,6 +1,7 @@
 package com.movies.movies_api.service;
 
 import com.movies.movies_api.entity.Genre;
+import com.movies.movies_api.entity.Movie;
 import com.movies.movies_api.dto.GenreMoviesDTO;
 import com.movies.movies_api.repository.GenreRepository;
 import com.movies.movies_api.repository.MovieRepository;
@@ -18,12 +19,12 @@ public class GenreService {
 
     // Repositories will be injected here
     private final GenreRepository genreRepository;
-//    private final MovieRepository movieRepository;
+    private final MovieRepository movieRepository;
 
     @Autowired
     public GenreService(GenreRepository genreRepository, MovieRepository movieRepository) {
         this.genreRepository = genreRepository;
-//        this.movieRepository = movieRepository;
+        this.movieRepository = movieRepository;
     }
 
     public Genre createGenre(Genre genre) {
@@ -64,10 +65,33 @@ public class GenreService {
         return null;
     }
 
-    public void deleteGenre(Long id) {
-        Genre genre = genreRepository.findById(id).orElse(null);
-        if (genre != null) {
-            genreRepository.delete(genre);
+    public boolean deleteGenre(Long genreId, boolean force) {
+        Genre genre = genreRepository.findById(genreId).orElse(null);
+
+        if (genre == null) {
+            return false; // Genre not found
         }
+
+        if (!force && !genre.getMovies().isEmpty()) {
+            // Genre has associated movies, and force is false
+            throw new IllegalStateException(
+                    "Cannot delete genre '" + genre.getName() + "' because it has " +
+                            genre.getMovies().size() + " associated movie(s)."
+            );
+        }
+
+        // Force deletion: remove genre from all associated movies
+        if (force) {
+            for (Movie movie : genre.getMovies()) {
+                movie.getGenres().remove(genre); // Remove the genre from movie's genres
+                movieRepository.save(movie); // Persist the changes in movies
+            }
+        }
+
+        // Delete the genre
+        genreRepository.delete(genre);
+        return true;
     }
+
+
 }

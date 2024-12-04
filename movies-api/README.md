@@ -73,6 +73,14 @@ NB! patch works for giving individual fields as well
 "movieIds": [45, 55]
 }
 
+To force delete entities with existing relationships
+
+http://localhost:8080/api/actors/7?force=true
+
+for genre
+
+Send DELETE /api/genres/{id}?force=true
+
 
 
 
