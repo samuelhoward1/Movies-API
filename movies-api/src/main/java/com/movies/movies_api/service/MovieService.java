@@ -115,13 +115,39 @@ public class MovieService {
         return movieRepository.save(existingMovie);
     }
 
-    public boolean deleteMovie(Long movieId) {
+    public boolean deleteMovie(Long movieId, boolean force) {
+        // Fetch the movie or throw exception if not found
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Movie with ID " + movieId + " not found", String.valueOf(movieId))
+                );
 
+        // Check for associated entities (e.g., genres or actors)
+        if (!force && (!movie.getGenres().isEmpty() || !movie.getActors().isEmpty())) {
+            throw new IllegalStateException(
+                    "Cannot delete movie '" + movie.getTitle() + "' because it is associated with " +
+                            movie.getGenres().size() + " genre(s) and " +
+                            movie.getActors().size() + " actor(s)."
+            );
+        }
+
+        // If force is true, clean up relationships
+        if (force) {
+            for (Genre genre : movie.getGenres()) {
+                genre.getMovies().remove(movie);
+                genreRepository.save(genre); // Persist the changes
+            }
+            for (Actor actor : movie.getActors()) {
+                actor.getMovies().remove(movie);
+                actorRepository.save(actor); // Persist the changes
+            }
+        }
+
+        // Delete the movie
         movieRepository.delete(movie);
         return true;
     }
+
 
     public Set<Movie> getAllMovies() {
         return new HashSet<>(movieRepository.findAll());

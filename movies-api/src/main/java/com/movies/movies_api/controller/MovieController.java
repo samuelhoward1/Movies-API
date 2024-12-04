@@ -54,13 +54,27 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        boolean deleted = movieService.deleteMovie(id);
-        if (!deleted) {
-            throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
+    public ResponseEntity<String> deleteMovie(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean force) {
+        try {
+            // Attempt to delete the movie
+            boolean deleted = movieService.deleteMovie(id, force);
+
+            // If the movie is not found, throw an exception
+            if (!deleted) {
+                throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
+            }
+
+            // Return 204 No Content if deletion is successful
+            return ResponseEntity.noContent().build();
+
+        } catch (IllegalStateException e) {
+            // Handle the case where the movie cannot be deleted due to associated entities
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 
     @GetMapping(params = "year")
     public ResponseEntity<Set<Movie>> getMoviesByYear(@RequestParam Integer year) {
