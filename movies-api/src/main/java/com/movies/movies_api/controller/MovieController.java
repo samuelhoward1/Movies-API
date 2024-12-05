@@ -44,8 +44,12 @@ public class MovieController {
     @GetMapping("/search")
     public ResponseEntity<List<Movie>> searchMoviesByTitle(@RequestParam String title) {
         List<Movie> movies = movieService.searchMoviesByTitle(title);
+        if (movies.isEmpty()) {
+            throw new ResourceNotFoundException("No movies found matching title: " + title, HttpStatus.NOT_FOUND.toString());
+        }
         return ResponseEntity.ok(movies);
     }
+
 
 
 
