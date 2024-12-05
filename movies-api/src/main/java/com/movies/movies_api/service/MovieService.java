@@ -12,8 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -154,6 +156,12 @@ public class MovieService {
     public Page<Movie> getAllMovies(Pageable pageable) {
         return movieRepository.findAll(pageable);
     }
+
+    public List<Movie> searchMoviesByTitle(String title) {
+        // Call the repository method to perform the search
+        return movieRepository.findByTitleContainingIgnoreCase(title);
+    }
+
 
 
     public Movie getMovieById(Long movieId) {

@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -38,6 +40,13 @@ public class MovieController {
         Page<Movie> movies = movieService.getAllMovies(PageRequest.of(page, size));
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Movie>> searchMoviesByTitle(@RequestParam String title) {
+        List<Movie> movies = movieService.searchMoviesByTitle(title);
+        return ResponseEntity.ok(movies);
+    }
+
 
 
     @GetMapping("/{id}")
