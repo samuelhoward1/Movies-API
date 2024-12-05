@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,13 @@ public class MovieService {
 
     @Transactional
     public Movie addMovie(Movie movie) {
+        // Check if a movie with the same title and release year already exists
+        Optional<Movie> existingMovie = movieRepository.findByTitleIgnoreCaseAndReleaseYear(movie.getTitle(), movie.getReleaseYear());
+        if (existingMovie.isPresent()) {
+            throw new IllegalArgumentException("Movie with title '" + movie.getTitle() + "' and release year " + movie.getReleaseYear() + " already exists.");
+        }
+
+        // Map genres and actors as before
         Set<Genre> genres = movie.getGenres().stream()
                 .map(g -> genreRepository.findById(g.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Genre with ID " + g.getId() + " not found", String.valueOf(g.getId()))))
@@ -53,6 +61,7 @@ public class MovieService {
 
         return movieRepository.save(movie);
     }
+
 
     @Transactional
     public Movie updateMovie(Long movieId, Movie updatedMovie) {

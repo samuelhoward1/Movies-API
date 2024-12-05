@@ -28,9 +28,13 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<Movie> addMovie(@Valid @RequestBody Movie movie) {
-        Movie createdMovie = movieService.addMovie(movie);
-        return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
+    public ResponseEntity<?> addMovie(@Valid @RequestBody Movie movie) {
+        try {
+            Movie createdMovie = movieService.addMovie(movie);
+            return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping
