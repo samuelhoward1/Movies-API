@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,21 +27,26 @@ public class ActorService {
 
     // Add Actor and update the movie's actors set
     public void addActor(Actor actor) {
+        // Check if an actor with the same name exists
+        if (actorRepository.findByNameIgnoreCase(actor.getName()).isPresent()) {
+            throw new DataIntegrityViolationException("An actor with the name '" + actor.getName() + "' already exists.");
+        }
+
         // Save the actor
         actorRepository.save(actor);
 
-        // Now update the movie's actors set
+        // Update the movie's actors set
         if (actor.getMovies() != null) {
             for (Movie movie : actor.getMovies()) {
                 Optional<Movie> dbMovie = movieRepository.findById(movie.getId());
                 if (dbMovie.isPresent()) {
                     Movie fetchedMovie = dbMovie.get();
-                    fetchedMovie.getActors().add(actor); // Add the actor to the movie's actors set
-                    movieRepository.save(fetchedMovie); // Save the movie to persist the updated actors set
+                    fetchedMovie.getActors().add(actor);
+                    movieRepository.save(fetchedMovie);
                 }
             }
         }
-    }
+        }
 
     public Page<Actor> getAllActors(int page, int size) {
         // Create a PageRequest object using the provided page and size

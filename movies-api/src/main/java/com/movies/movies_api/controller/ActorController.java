@@ -5,6 +5,7 @@ import com.movies.movies_api.service.ActorService;
 import com.movies.movies_api.dto.ActorUpdateDTO;
 import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,13 @@ public class ActorController {
     }
 
     @PostMapping
-    public ResponseEntity<Actor> createActor(@Valid @RequestBody Actor actor) {
-        actorService.addActor(actor);
-        return new ResponseEntity<>(actor, HttpStatus.CREATED);
+    public ResponseEntity<?> createActor(@Valid @RequestBody Actor actor) {
+        try {
+            actorService.addActor(actor);
+            return new ResponseEntity<>(actor, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @GetMapping
