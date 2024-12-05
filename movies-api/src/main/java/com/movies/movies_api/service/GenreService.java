@@ -30,6 +30,12 @@ public class GenreService {
     }
 
     public Genre createGenre(Genre genre) {
+        // Check for existing genre with the same name (case-insensitive)
+        Optional<Genre> existingGenre = genreRepository.findByNameIgnoreCase(genre.getName());
+        if (existingGenre.isPresent()) {
+            throw new IllegalArgumentException("Genre with name '" + genre.getName() + "' already exists.");
+        }
+        // Proceed with creation if no duplicates
         return genreRepository.save(genre);
     }
 

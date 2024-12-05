@@ -28,9 +28,13 @@ public class GenreController {
     }
 
     @PostMapping
-    public ResponseEntity<Genre> addGenre(@Valid @RequestBody Genre genre) {
-        Genre createdGenre = genreService.createGenre(genre);
-        return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
+    public ResponseEntity<?> addGenre(@Valid @RequestBody Genre genre) {
+        try {
+            Genre createdGenre = genreService.createGenre(genre);
+            return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping
