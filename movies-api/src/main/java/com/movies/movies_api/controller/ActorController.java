@@ -5,6 +5,7 @@ import com.movies.movies_api.service.ActorService;
 import com.movies.movies_api.dto.ActorUpdateDTO;
 import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,16 @@ public class ActorController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Actor>> getActors() {
-        Set<Actor> actors = actorService.getAllActors();
-        return ResponseEntity.ok(actors);
+    public ResponseEntity<?> getActors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<Actor> actorsPage = actorService.getAllActors(page, size);
+
+        // Return the paginated response
+        return ResponseEntity.ok(actorsPage);
     }
+
 
     @GetMapping("{id}")
     public ResponseEntity<Actor> getActorById(@PathVariable Long id) {

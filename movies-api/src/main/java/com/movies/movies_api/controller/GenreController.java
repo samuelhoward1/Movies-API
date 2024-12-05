@@ -6,6 +6,7 @@ import com.movies.movies_api.service.GenreService;
 import com.movies.movies_api.service.MapperService;
 import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +34,16 @@ public class GenreController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Genre>> getAllGenres() {
-        Set<Genre> genres = genreService.getAllGenres();
-        return new ResponseEntity<>(genres, HttpStatus.OK);
+    public ResponseEntity<?> getAllGenres(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<Genre> genresPage = genreService.getAllGenres(page, size);
+
+        // If you want to include only the list of genres, return genresPage.getContent()
+        return new ResponseEntity<>(genresPage, HttpStatus.OK);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getGenreById(@PathVariable Long id) {

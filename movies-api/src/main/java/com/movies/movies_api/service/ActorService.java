@@ -6,6 +6,8 @@ import com.movies.movies_api.repository.ActorRepository;
 import com.movies.movies_api.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -40,9 +42,12 @@ public class ActorService {
         }
     }
 
-    // Get all actors
-    public Set<Actor> getAllActors() {
-        return new HashSet<>(actorRepository.findAll());
+    public Page<Actor> getAllActors(int page, int size) {
+        // Create a PageRequest object using the provided page and size
+        PageRequest pageable = PageRequest.of(page, size);
+
+        // Fetch paginated actors
+        return actorRepository.findAll(pageable);
     }
 
     // Get actor by ID

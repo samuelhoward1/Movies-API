@@ -7,6 +7,8 @@ import com.movies.movies_api.repository.GenreRepository;
 import com.movies.movies_api.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +33,15 @@ public class GenreService {
         return genreRepository.save(genre);
     }
 
-    public Set<Genre> getAllGenres() {
-        List<Genre> genreList = genreRepository.findAll();
-        return new HashSet<>(genreList);
+
+    public Page<Genre> getAllGenres(int page, int size) {
+        // Create a PageRequest object using the provided page and size
+        PageRequest pageable = PageRequest.of(page, size);
+
+        // Fetch the paginated result from the repository
+        return genreRepository.findAll(pageable);
     }
+
 
     public Genre getGenre(Long id) {
         return genreRepository.findById(id).orElse(null);

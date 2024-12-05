@@ -81,6 +81,16 @@ for genre
 
 Send DELETE /api/genres/{id}?force=true
 
+for movie
+
+http://localhost:8080/api/movies/2?force=true
+
+pagination
+
+GET /api/movies?page=0&size=10
+
+http://localhost:8080/api/actors?page=0&size=5
+
 
 
 

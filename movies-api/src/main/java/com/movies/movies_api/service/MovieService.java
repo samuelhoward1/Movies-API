@@ -8,6 +8,8 @@ import com.movies.movies_api.repository.GenreRepository;
 import com.movies.movies_api.repository.MovieRepository;
 import com.movies.movies_api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,9 +151,10 @@ public class MovieService {
     }
 
 
-    public Set<Movie> getAllMovies() {
-        return new HashSet<>(movieRepository.findAll());
+    public Page<Movie> getAllMovies(Pageable pageable) {
+        return movieRepository.findAll(pageable);
     }
+
 
     public Movie getMovieById(Long movieId) {
         return movieRepository.findById(movieId)
