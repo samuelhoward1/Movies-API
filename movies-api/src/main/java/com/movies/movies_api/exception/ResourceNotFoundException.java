@@ -1,7 +1,5 @@
 package com.movies.movies_api.exception;
 
-import org.springframework.http.HttpStatus;
-
 public class ResourceNotFoundException extends RuntimeException {
 
     private final String statusCode;

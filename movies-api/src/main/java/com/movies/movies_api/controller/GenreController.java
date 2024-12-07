@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/genres")
@@ -43,8 +42,6 @@ public class GenreController {
             @RequestParam(defaultValue = "10") int size) {
 
         Page<Genre> genresPage = genreService.getAllGenres(page, size);
-
-        // If you want to include only the list of genres, return genresPage.getContent()
         return new ResponseEntity<>(genresPage, HttpStatus.OK);
     }
 
@@ -82,7 +79,6 @@ public class GenreController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "false") boolean force) {
         try {
-            // Attempt to delete the genre
             boolean deleted = genreService.deleteGenre(id, force);
 
             // If the genre is not found, throw an exception
@@ -98,8 +94,4 @@ public class GenreController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
-
-
 }

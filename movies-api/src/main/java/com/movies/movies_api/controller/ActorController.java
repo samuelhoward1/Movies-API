@@ -78,7 +78,7 @@ public class ActorController {
             if (!deleted) {
                 throw new ResourceNotFoundException("Actor not found with id " + id, HttpStatus.NOT_FOUND.toString());
             }
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
             // Handle the case where actor can't be deleted due to associated movies
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

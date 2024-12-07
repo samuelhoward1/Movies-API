@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,13 +34,11 @@ public class MovieService {
 
     @Transactional
     public Movie addMovie(Movie movie) {
-        // Check if a movie with the same title and release year already exists
         Optional<Movie> existingMovie = movieRepository.findByTitleIgnoreCaseAndReleaseYear(movie.getTitle(), movie.getReleaseYear());
         if (existingMovie.isPresent()) {
             throw new IllegalArgumentException("Movie with title '" + movie.getTitle() + "' and release year " + movie.getReleaseYear() + " already exists.");
         }
 
-        // Map genres and actors as before
         Set<Genre> genres = movie.getGenres().stream()
                 .map(g -> genreRepository.findById(g.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Genre with ID " + g.getId() + " not found", String.valueOf(g.getId()))))
@@ -65,7 +62,6 @@ public class MovieService {
 
     @Transactional
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
-        // Find the existing movie by its ID, or throw an exception if not found
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
 
@@ -80,7 +76,6 @@ public class MovieService {
             existingMovie.setDuration(updatedMovie.getDuration());
         }
 
-        // Update genres if provided
         if (updatedMovie.getGenres() != null && !updatedMovie.getGenres().isEmpty()) {
             // Map the provided genres by their IDs
             Set<Genre> newGenres = updatedMovie.getGenres().stream()
@@ -95,20 +90,18 @@ public class MovieService {
 
             // Synchronize the inverse side of the relationship (Genre -> Movie)
             for (Genre genre : newGenres) {
-                genre.getMovies().add(existingMovie);  // Add movie to genre's movie set
+                genre.getMovies().add(existingMovie);
             }
 
             // Remove the movie from the old genres that are no longer associated
             for (Genre genre : oldGenres) {
                 if (!newGenres.contains(genre)) {
-                    genre.getMovies().remove(existingMovie);  // Remove movie from genre's movie set
+                    genre.getMovies().remove(existingMovie);
                 }
             }
         }
 
-        // Update actors if provided
         if (updatedMovie.getActors() != null && !updatedMovie.getActors().isEmpty()) {
-            // Map the provided actors by their IDs
             Set<Actor> newActors = updatedMovie.getActors().stream()
                     .map(a -> actorRepository.findById(a.getId())
                             .orElseThrow(() -> new ResourceNotFoundException("Actor with ID " + a.getId() + " not found", String.valueOf(a.getId()))))
@@ -120,16 +113,14 @@ public class MovieService {
 
             // Synchronize the inverse side of the relationship (Actor -> Movie)
             for (Actor actor : newActors) {
-                actor.getMovies().add(existingMovie);  // Add movie to actor's movie set
+                actor.getMovies().add(existingMovie);
             }
         }
 
-        // Save and return the updated movie
         return movieRepository.save(existingMovie);
     }
 
     public boolean deleteMovie(Long movieId, boolean force) {
-        // Fetch the movie or throw exception if not found
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Movie with ID " + movieId + " not found", String.valueOf(movieId))
@@ -148,15 +139,14 @@ public class MovieService {
         if (force) {
             for (Genre genre : movie.getGenres()) {
                 genre.getMovies().remove(movie);
-                genreRepository.save(genre); // Persist the changes
+                genreRepository.save(genre);
             }
             for (Actor actor : movie.getActors()) {
                 actor.getMovies().remove(movie);
-                actorRepository.save(actor); // Persist the changes
+                actorRepository.save(actor);
             }
         }
 
-        // Delete the movie
         movieRepository.delete(movie);
         return true;
     }
@@ -167,7 +157,6 @@ public class MovieService {
     }
 
     public List<Movie> searchMoviesByTitle(String title) {
-        // Call the repository method to perform the search
         return movieRepository.findByTitleContainingIgnoreCase(title);
     }
 

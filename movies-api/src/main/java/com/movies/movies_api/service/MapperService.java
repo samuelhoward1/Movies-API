@@ -9,12 +9,11 @@ import java.util.stream.Collectors;
 public class MapperService {
 
     public GenreMoviesDTO toGenreMoviesDTO(Genre genre) {
-        // Using the constructor with parameters for GenreMoviesDTO
         return new GenreMoviesDTO(
                 genre.getId(),
                 genre.getName(),
                 genre.getMovies().stream()
-                        .map(movie -> movie.getTitle())  // Fetch movie titles
+                        .map(movie -> movie.getTitle())
                         .collect(Collectors.toSet())
         );
     }

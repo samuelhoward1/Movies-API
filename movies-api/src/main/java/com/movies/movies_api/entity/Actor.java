@@ -26,10 +26,8 @@ public class Actor {
     private String birthDate;
 
     @ManyToMany(mappedBy = "actors")
-    @JsonBackReference("movie-actor") // Mark this side as the back-reference (do not serialize)
+    @JsonBackReference("movie-actor")
     private Set<Movie> movies = new HashSet<>();
-
-    // Getters and Setters
 
     public Long getId() {
         return id;

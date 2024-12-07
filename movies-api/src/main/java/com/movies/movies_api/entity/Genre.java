@@ -17,19 +17,17 @@ public class Genre {
 
     @NotBlank(message = "Genre name cannot be blank")
     @Size(max = 100, message = "Genre name must not exceed 100 characters")
-    @Column(name = "name", nullable = false, unique = true) // Enforce unique constraint in DB
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @ManyToMany
     @JoinTable(
-            name = "movie_genre", // Name of the join table
-            joinColumns = @JoinColumn(name = "genre_id"), // Foreign key referencing Genre
-            inverseJoinColumns = @JoinColumn(name = "movie_id") // Foreign key referencing Movie
+            name = "movie_genre",
+            joinColumns = @JoinColumn(name = "genre_id"),
+            inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
-    @JsonBackReference("movie-genre") // Mark this side as the back-reference (do not serialize)
+    @JsonBackReference("movie-genre")
     private Set<Movie> movies = new HashSet<>();
-
-    // Getters and Setters
 
     public Long getId() {
         return id;

@@ -1,6 +1,5 @@
 package com.movies.movies_api.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -35,19 +34,16 @@ public class Movie {
     private Integer duration;
 
     @ManyToMany(mappedBy = "movies")
-    // @JsonManagedReference("movie-genre") // Uncomment for serialization
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
-            name = "movie_actor", // Join table for movie-actor relationship
+            name = "movie_actor",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    // @JsonManagedReference("movie-actor") // Uncomment for serialization
-    private Set<Actor> actors = new HashSet<>();
 
-    // Getters and Setters
+    private Set<Actor> actors = new HashSet<>();
 
     public Long getId() {
         return id;

@@ -7,18 +7,16 @@ public class GenreMoviesDTO {
 
     private Long id;
 
-    @NotBlank(message = "Genre name cannot be blank") // Add @NotBlank for validation
+    @NotBlank(message = "Genre name cannot be blank")
     private String name;
-    private Set<String> movies; // Only movie titles
+    private Set<String> movies;
 
-    // Constructor with all fields
     public GenreMoviesDTO(Long id, String name, Set<String> movies) {
         this.id = id;
         this.name = name;
         this.movies = movies;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

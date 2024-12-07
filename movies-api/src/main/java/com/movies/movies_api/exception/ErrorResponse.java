@@ -16,8 +16,6 @@ public class ErrorResponse {
         this.fieldValue = fieldValue;
     }
 
-    // Getters and setters for all fields
-
     public int getStatusCode() {
         return statusCode;
     }

@@ -1,7 +1,5 @@
 package com.movies.movies_api.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.util.Set;
 
@@ -14,7 +12,6 @@ public class ActorUpdateDTO {
 
     private Set<Long> movieIds;
 
-    // Getters and Setters
     public String getName() {
         return name;
     }
