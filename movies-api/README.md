@@ -1,6 +1,7 @@
 Movie Database API
 
 A RESTful API built with Spring Boot and JPA for managing a movie database. Supports CRUD operations for movies, genres, and actors, with advanced filtering and search capabilities.
+To run this program, ensure you have Java version 21 installed. Clone the repository, navigate to the project directory, and use the following command to start the application:mvn spring-boot:run.
 
 Key Features:
 Genre:
