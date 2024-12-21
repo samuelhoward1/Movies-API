@@ -14,17 +14,17 @@ The API supports many-to-many relationships between movies, genres, and actors, 
 
 ## Installation
 ### Clone repository to local machine:
-git clone https://gitea.kood.tech/samuelhoward/kmdb.git
+`git clone https://gitea.kood.tech/samuelhoward/kmdb.git`
 
 ### Make sure to have Maven installed:
-mvn -v
+`mvn -v`
 
 ### Make sure to have Java 21:
-java -v
+`java -v`
 
 ### Navigate to movies-api and run:
-mvn clean install
-mvn spring-boot:run
+`mvn clean install`
+`mvn spring-boot:run`
 
 ### Install and open Postman, click on the import button and upload the Movie-Database-API.json collection and start testing.
 
