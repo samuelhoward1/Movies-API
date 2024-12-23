@@ -30,17 +30,14 @@ public class ActorService {
     }
 
     public void addActor(Actor actor) {
-
         if (actorRepository.findByNameIgnoreCase(actor.getName()).isPresent()) {
             throw new DataIntegrityViolationException("An actor with the name '" + actor.getName() + "' already exists.");
         }
-
 
         String birthDate = actor.getBirthDate();
         if (!isValidDateFormat(birthDate)) {
             throw new IllegalArgumentException("Birthdate must be in ISO 8601 format (YYYY-MM-DD).");
         }
-
 
         try {
             LocalDate parsedDate = LocalDate.parse(birthDate);
@@ -48,9 +45,7 @@ public class ActorService {
             throw new IllegalArgumentException("Invalid birthdate: " + birthDate);
         }
 
-
         actorRepository.save(actor);
-
 
         if (actor.getMovies() != null) {
             for (Movie movie : actor.getMovies()) {
@@ -64,7 +59,6 @@ public class ActorService {
         }
     }
 
-
     private boolean isValidDateFormat(String date) {
         String dateFormatRegex = "^\\d{4}-\\d{2}-\\d{2}$";
         Pattern pattern = Pattern.compile(dateFormatRegex);
@@ -75,6 +69,10 @@ public class ActorService {
     public Page<Actor> getAllActors(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return actorRepository.findAll(pageable);
+    }
+
+    public Set<Actor> getAllActorsWithoutPagination() {
+        return new HashSet<>(actorRepository.findAll());
     }
 
     public Actor getActorById(Long actorId) {
@@ -128,7 +126,6 @@ public class ActorService {
     public boolean deleteActor(Long actorId, boolean force) {
         Actor actor = getActorById(actorId);
         if (actor != null) {
-
             if (!force && !actor.getMovies().isEmpty()) {
                 throw new IllegalStateException("Unable to delete actor '" + actor.getName() +
                         "' as they are associated with " + actor.getMovies().size() + " movie(s).");
@@ -144,7 +141,4 @@ public class ActorService {
         }
         return false;
     }
-
-
-
 }

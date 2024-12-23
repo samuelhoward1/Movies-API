@@ -3,7 +3,7 @@ package com.movies.movies_api.controller;
 import com.movies.movies_api.entity.Movie;
 import com.movies.movies_api.entity.Actor;
 import com.movies.movies_api.service.MovieService;
-import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
+import com.movies.movies_api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,11 +38,17 @@ public class MovieController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Movie>> getAllMovies(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<Movie> movies = movieService.getAllMovies(PageRequest.of(page, size));
-        return new ResponseEntity<>(movies, HttpStatus.OK);
+    public ResponseEntity<?> getAllMovies(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+
+        if (page == null || size == null) {
+            Set<Movie> allMovies = movieService.getAllMoviesWithoutPagination();
+            return new ResponseEntity<>(allMovies, HttpStatus.OK);
+        } else {
+            Page<Movie> moviesPage = movieService.getAllMovies(PageRequest.of(page, size));
+            return new ResponseEntity<>(moviesPage, HttpStatus.OK);
+        }
     }
 
     @GetMapping("/search")
@@ -53,9 +59,6 @@ public class MovieController {
         }
         return ResponseEntity.ok(movies);
     }
-
-
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
@@ -80,23 +83,15 @@ public class MovieController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "false") boolean force) {
         try {
-            // Attempt to delete the movie
             boolean deleted = movieService.deleteMovie(id, force);
-
-            // If the movie is not found, throw an exception
             if (!deleted) {
                 throw new ResourceNotFoundException("Movie not found with id " + id, HttpStatus.NOT_FOUND.toString());
             }
-
-            // Return 204 No Content if deletion is successful
             return ResponseEntity.noContent().build();
-
         } catch (IllegalStateException e) {
-            // Handle the case where the movie cannot be deleted due to associated entities
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
 
     @GetMapping(params = "year")
     public ResponseEntity<Set<Movie>> getMoviesByYear(@RequestParam Integer year) {

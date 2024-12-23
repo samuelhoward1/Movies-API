@@ -59,13 +59,11 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
-
     @Transactional
     public Movie updateMovie(Long movieId, Movie updatedMovie) {
         Movie existingMovie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
 
-        // Only update fields that are not null
         if (updatedMovie.getTitle() != null) {
             existingMovie.setTitle(updatedMovie.getTitle());
         }
@@ -77,23 +75,19 @@ public class MovieService {
         }
 
         if (updatedMovie.getGenres() != null && !updatedMovie.getGenres().isEmpty()) {
-            // Map the provided genres by their IDs
             Set<Genre> newGenres = updatedMovie.getGenres().stream()
                     .map(g -> genreRepository.findById(g.getId())
                             .orElseThrow(() -> new ResourceNotFoundException("Genre with ID " + g.getId() + " not found", String.valueOf(g.getId()))))
                     .collect(Collectors.toSet());
 
-            // Clear existing genres and add the new ones
             Set<Genre> oldGenres = new HashSet<>(existingMovie.getGenres());
             existingMovie.getGenres().clear();
             existingMovie.getGenres().addAll(newGenres);
 
-            // Synchronize the inverse side of the relationship (Genre -> Movie)
             for (Genre genre : newGenres) {
                 genre.getMovies().add(existingMovie);
             }
 
-            // Remove the movie from the old genres that are no longer associated
             for (Genre genre : oldGenres) {
                 if (!newGenres.contains(genre)) {
                     genre.getMovies().remove(existingMovie);
@@ -107,11 +101,9 @@ public class MovieService {
                             .orElseThrow(() -> new ResourceNotFoundException("Actor with ID " + a.getId() + " not found", String.valueOf(a.getId()))))
                     .collect(Collectors.toSet());
 
-            // Clear existing actors and add the new ones
             existingMovie.getActors().clear();
             existingMovie.getActors().addAll(newActors);
 
-            // Synchronize the inverse side of the relationship (Actor -> Movie)
             for (Actor actor : newActors) {
                 actor.getMovies().add(existingMovie);
             }
@@ -122,11 +114,8 @@ public class MovieService {
 
     public boolean deleteMovie(Long movieId, boolean force) {
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Movie with ID " + movieId + " not found", String.valueOf(movieId))
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
 
-        // Check for associated entities (e.g., genres or actors)
         if (!force && (!movie.getGenres().isEmpty() || !movie.getActors().isEmpty())) {
             throw new IllegalStateException(
                     "Cannot delete movie '" + movie.getTitle() + "' because it is associated with " +
@@ -135,7 +124,6 @@ public class MovieService {
             );
         }
 
-        // If force is true, clean up relationships
         if (force) {
             for (Genre genre : movie.getGenres()) {
                 genre.getMovies().remove(movie);
@@ -151,24 +139,21 @@ public class MovieService {
         return true;
     }
 
-
     public Page<Movie> getAllMovies(Pageable pageable) {
         return movieRepository.findAll(pageable);
+    }
+
+    public Set<Movie> getAllMoviesWithoutPagination() {
+        return new HashSet<>(movieRepository.findAll());
     }
 
     public List<Movie> searchMoviesByTitle(String title) {
         return movieRepository.findByTitleContainingIgnoreCase(title);
     }
 
-
-
     public Movie getMovieById(Long movieId) {
         return movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie with ID " + movieId + " not found", String.valueOf(movieId)));
-    }
-
-    public Set<Movie> getMoviesByGenre(Long genreId) {
-        return movieRepository.findByGenres_Id(genreId);
     }
 
     public Set<Movie> getMoviesByReleaseYear(Integer releaseYear) {

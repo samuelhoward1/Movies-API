@@ -4,7 +4,7 @@ import com.movies.movies_api.dto.GenreMoviesDTO;
 import com.movies.movies_api.entity.Genre;
 import com.movies.movies_api.service.GenreService;
 import com.movies.movies_api.service.MapperService;
-import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
+import com.movies.movies_api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -38,13 +38,16 @@ public class GenreController {
 
     @GetMapping
     public ResponseEntity<?> getAllGenres(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+
+        if (page == null || size == null) {
+            return new ResponseEntity<>(genreService.getAllGenresWithoutPagination(), HttpStatus.OK);
+        }
 
         Page<Genre> genresPage = genreService.getAllGenres(page, size);
         return new ResponseEntity<>(genresPage, HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getGenreById(@PathVariable Long id) {
@@ -81,16 +84,13 @@ public class GenreController {
         try {
             boolean deleted = genreService.deleteGenre(id, force);
 
-            // If the genre is not found, throw an exception
             if (!deleted) {
                 throw new ResourceNotFoundException("Genre not found with id " + id, HttpStatus.NOT_FOUND.toString());
             }
 
-            // Return 204 No Content if deletion is successful
             return ResponseEntity.noContent().build();
 
         } catch (IllegalStateException e) {
-            // Handle the case where the genre cannot be deleted due to associated movies
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

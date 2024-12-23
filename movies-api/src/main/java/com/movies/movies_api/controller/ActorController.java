@@ -37,15 +37,17 @@ public class ActorController {
 
     @GetMapping
     public ResponseEntity<?> getActors(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
 
-        Page<Actor> actorsPage = actorService.getAllActors(page, size);
-
-        // Return the paginated response
-        return ResponseEntity.ok(actorsPage);
+        if (page == null || size == null) {
+            Set<Actor> actors = actorService.getAllActorsWithoutPagination();
+            return ResponseEntity.ok(actors);
+        } else {
+            Page<Actor> actorsPage = actorService.getAllActors(page, size);
+            return ResponseEntity.ok(actorsPage);
+        }
     }
-
 
     @GetMapping("{id}")
     public ResponseEntity<Actor> getActorById(@PathVariable Long id) {
@@ -80,13 +82,9 @@ public class ActorController {
             }
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
-            // Handle the case where actor can't be deleted due to associated movies
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
-
 
     @GetMapping(params = "name")
     public ResponseEntity<Set<Actor>> getActorsByName(@RequestParam String name) {

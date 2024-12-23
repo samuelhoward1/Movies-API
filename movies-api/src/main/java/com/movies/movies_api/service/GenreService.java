@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,10 +32,13 @@ public class GenreService {
         return genreRepository.save(genre);
     }
 
-
     public Page<Genre> getAllGenres(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return genreRepository.findAll(pageable);
+    }
+
+    public List<Genre> getAllGenresWithoutPagination() {
+        return genreRepository.findAll();
     }
 
     public Genre getGenre(Long id) {
@@ -64,7 +68,6 @@ public class GenreService {
             );
         }
 
-        // Force deletion: remove genre from all associated movies
         if (force) {
             for (Movie movie : genre.getMovies()) {
                 movie.getGenres().remove(genre);
@@ -75,6 +78,4 @@ public class GenreService {
         genreRepository.delete(genre);
         return true;
     }
-
-
 }
