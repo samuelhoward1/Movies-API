@@ -24,6 +24,7 @@ The API supports many-to-many relationships between movies, genres, and actors, 
 
 ### Navigate to movies-api and run:
 `mvn clean install`
+
 `mvn spring-boot:run`
 
 ### Install and open Postman, click on the import button and upload the Movie-Database-API.json collection and start testing.
@@ -53,6 +54,8 @@ The API supports many-to-many relationships between movies, genres, and actors, 
 |            | Search by Title  | `/api/movies/search?title={title}`                | GET        | Searches movies by title (case-insensitive).                                                |
 |            | Update           | `/api/movies/{id}`                                | PATCH      | Same request body structure as `POST`.                                                     |
 |            | Delete           | `/api/movies/{id}`                                | DELETE     | Error if relationships exist. Force delete with `?force=true`.                              |
+
+## PS! For pagination add page and size to query parameters.
 
 
 
