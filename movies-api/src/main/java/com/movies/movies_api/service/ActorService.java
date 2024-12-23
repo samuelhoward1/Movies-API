@@ -13,6 +13,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ActorService {
@@ -26,11 +30,27 @@ public class ActorService {
     }
 
     public void addActor(Actor actor) {
+
         if (actorRepository.findByNameIgnoreCase(actor.getName()).isPresent()) {
             throw new DataIntegrityViolationException("An actor with the name '" + actor.getName() + "' already exists.");
         }
 
+
+        String birthDate = actor.getBirthDate();
+        if (!isValidDateFormat(birthDate)) {
+            throw new IllegalArgumentException("Birthdate must be in ISO 8601 format (YYYY-MM-DD).");
+        }
+
+
+        try {
+            LocalDate parsedDate = LocalDate.parse(birthDate);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid birthdate: " + birthDate);
+        }
+
+
         actorRepository.save(actor);
+
 
         if (actor.getMovies() != null) {
             for (Movie movie : actor.getMovies()) {
@@ -42,7 +62,15 @@ public class ActorService {
                 }
             }
         }
-        }
+    }
+
+
+    private boolean isValidDateFormat(String date) {
+        String dateFormatRegex = "^\\d{4}-\\d{2}-\\d{2}$";
+        Pattern pattern = Pattern.compile(dateFormatRegex);
+        Matcher matcher = pattern.matcher(date);
+        return matcher.matches();
+    }
 
     public Page<Actor> getAllActors(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);

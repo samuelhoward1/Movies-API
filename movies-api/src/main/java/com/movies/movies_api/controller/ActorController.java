@@ -3,7 +3,7 @@ package com.movies.movies_api.controller;
 import com.movies.movies_api.entity.Actor;
 import com.movies.movies_api.service.ActorService;
 import com.movies.movies_api.dto.ActorUpdateDTO;
-import com.movies.movies_api.exception.ResourceNotFoundException;  // import the custom exception
+import com.movies.movies_api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
