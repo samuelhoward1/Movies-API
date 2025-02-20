@@ -55,7 +55,7 @@ The API supports many-to-many relationships between movies, genres, and actors, 
 |            | Update           | `/api/movies/{id}`                                | PATCH      | Same request body structure as `POST`.                                                     |
 |            | Delete           | `/api/movies/{id}`                                | DELETE     | Error if relationships exist. Force delete with `?force=true`.                              |
 
-## PS! For pagination add page and size to query parameters.
+
 
 
 
